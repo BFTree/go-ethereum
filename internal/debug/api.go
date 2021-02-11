@@ -21,6 +21,7 @@
 package debug
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -190,12 +191,12 @@ func (*HandlerT) WriteMemProfile(file string) error {
 
 // Stacks returns a printed representation of the stacks of all goroutines.
 func (*HandlerT) Stacks() string {
-	buf := make([]byte, 1024*1024)
-	buf = buf[:runtime.Stack(buf, true)]
-	return string(buf)
+	buf := new(bytes.Buffer)
+	pprof.Lookup("goroutine").WriteTo(buf, 2)
+	return buf.String()
 }
 
-// FreeOSMemory returns unused memory to the OS.
+// FreeOSMemory forces a garbage collection.
 func (*HandlerT) FreeOSMemory() {
 	debug.FreeOSMemory()
 }
